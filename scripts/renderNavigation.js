@@ -1,7 +1,8 @@
+import { createBurgerMenu } from "./createBurgerMenu.js";
 import { createElement } from "./helper.js";
 
 const nav = document.querySelector('.nav');
-// const burger = createBurgerMenu(nav);
+createBurgerMenu(nav, 'nav_active');
 
 export const renderNavigation = () => {
   nav.textContent = '';
