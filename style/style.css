@@ -80,15 +80,12 @@ fieldset {
   color: #365ABA;
 }
 
+.btn_castling {
+  background: #365ABA;
+  color: #FFFFFF;
+}
+
 .container {
 
 }
 
-
-.wishlist {
-  display: none;
-}
-
-.edit {
-  display: none;
-}
