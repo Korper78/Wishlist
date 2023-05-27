@@ -1,10 +1,11 @@
 import { createBurgerMenu } from "./createBurgerMenu.js";
 import { createElement } from "./helper.js";
-import { API_URL } from "./const.js";
+import { API_URL, JWT_TOKEN_KEY } from "./const.js";
 import { renderModal } from "./renderModal.js";
+import { auth, router } from "./index.js";
 
 const nav = document.querySelector('.nav');
-createBurgerMenu(nav, 'nav_active');
+createBurgerMenu(nav, 'nav_active', '.nav__btn');
 
 export const renderNavigation = () => {
   nav.textContent = '';
@@ -14,12 +15,12 @@ export const renderNavigation = () => {
     textContent: 'Зарегистрироваться'
   })
 
-  buttonSignUp.addEventListener('click',() => {
+  buttonSignUp.addEventListener('click', () => {
     renderModal({
       title: 'Регистрация',
       description: 'Введите ваши данные для регистрации на сервисе WishList',
       btnSubmit: 'Зарегистрироваться',
-      submitHandler: async () => {
+      submitHandler: async (event) => {
         const formData = new FormData(event.target);
         const credentials = {
           login: formData.get('login'),
@@ -34,14 +35,19 @@ export const renderNavigation = () => {
 
           if (response.ok) {
             const data = await response.json();
-            console.log(data);
+            localStorage.setItem(JWT_TOKEN_KEY, data.token);
+            auth.login = data.login;
+            // console.log(data);
+            router.setRoute(`/user/${data.login}`);
+            return true;
           } else {
-            console.log(await response.json());
-            throw new Error('Invalid credentials');
+            const {message = 'Неизвестная ошибка'} = await response.json();
+            console.log(message);
+            throw new Error(message);
           };
         } catch(error) {
-
-        }
+          alert(error.message);
+        };
       }
     });
   });
