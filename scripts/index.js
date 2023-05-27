@@ -8,7 +8,7 @@ export const router = Router();
 
 const token = localStorage.getItem(JWT_TOKEN_KEY)
 
-export const auth = token ? await getLogin(token) : {login: ''};
+export const auth = token ? await getLogin(token) : {};
 
 const app = document.querySelector('.app');
 

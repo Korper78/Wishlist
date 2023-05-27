@@ -58,7 +58,40 @@ export const renderNavigation = () => {
   })
 
   buttonLogin.addEventListener('click', () => {
+    renderModal({
+      title: 'Авторизация',
+      description: 'Введите ваши данные для входа в личный кабинет',
+      btnSubmit: 'Авторизоваться',
+      submitHandler: async (event) => {
+        const formData = new FormData(event.target);
+        const credentials = {
+          login: formData.get('login'),
+          password: formData.get('password'),
+        };
+        try {
+          const response = await fetch(`${API_URL}/login`, {
+            method: 'POST',
+            headers: {'Content-type': 'application/json'},
+            body: JSON.stringify(credentials),
+          });
 
+          if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem(JWT_TOKEN_KEY, data.token);
+            auth.login = data.login;
+            // console.log(data);
+            router.setRoute(`/user/${data.login}`);
+            return true;
+          } else {
+            const {message = 'Неизвестная ошибка'} = await response.json();
+            console.log(message);
+            throw new Error(message);
+          };
+        } catch(error) {
+          alert(error.message);
+        };
+      }
+    });
   });
   
   nav.append(buttonSignUp, buttonLogin);
