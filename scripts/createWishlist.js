@@ -1,5 +1,6 @@
+import { API_URL, months } from "./const.js";
 import { createElement, pluralizeYears } from "./helper.js";
-import { auth } from "./index.js";
+import { auth, router } from "./index.js";
 import { getUser } from "./service.js";
 
 export const createWishlist = async (pageLogin) => {
@@ -27,7 +28,7 @@ export const createWishlist = async (pageLogin) => {
     className: 'container'
   });
 
-  section.append(container):
+  section.append(container);
 
   const profile = createElement('div', {
     className: 'wishlist__profile profile',
@@ -48,20 +49,20 @@ export const createWishlist = async (pageLogin) => {
   : user.login;
 
   const title = createElement('h2', {
-    className:'',
+    className:'profile__fullname',
     textContent: fullname
 
   });
 
-  content. append(title);
+  content.append(title);
 
-  if (user.birthday) {
-    const birthday = new Date(user.birthday);
-    const day = birthday.getDay();
-    const month = birthday.toLocaleDateString('default', {month: 'long'});
+  if (user.birthdate) {
+    const birthday = new Date(user.birthdate);
+    const day = birthday.getDate();
+    const month = months[birthday.getMonth()]; //birthday.toLocaleDateString('default', {month: 'long'});
     const ageDifMs = Date.now() - birthday.getTime();
     const ageDate = new Date(ageDifMs);
-    const age = Math.abs(ageDate.setUTCFullYear() - 1970);
+    const age = Math.abs(ageDate.getUTCFullYear() - 1970);
     const plural = pluralizeYears(age);
 
     const ageMessage = `${day} ${month} исполнится ${age} ${plural}`
@@ -90,7 +91,7 @@ export const createWishlist = async (pageLogin) => {
     content.append(editBtn);
   };
   profile.append(avatar, content);
-  container.append(content);
+  container.append(profile);
 
   if (user.description) {
     const description = createElement('p', {
@@ -100,12 +101,78 @@ export const createWishlist = async (pageLogin) => {
     container.append(description);
   };
 
-  const categoriesList = createElement('ul', {
-    className: 'wishlist__categories categories',
-  });
-
-  container.append(categoriesList);
-
   
+  if (!(Object.keys(user.wish).length)) {
+    const noWish = createElement('p', {
+      className: 'wishlist__no-wish',
+      textContent: 'Список желаний пуст',
+    });
+    container.append(noWish);
+  } else {
+    const categoriesList = createElement('ul', {
+      className: 'wishlist__categories categories',
+    });
+    container.append(categoriesList);
 
+    for (const title in user.wish) {
+      if (Object.hasOwnProperty.call(user.wish, title)) {
+        const categoriesItem = createElement('li', {
+          className: 'categories__item',
+        });
+
+        const categoriesTitle = createElement('h3', {
+          className: 'categories__title',
+          textContent: title,
+        });
+        
+        const wishlist = createElement('ul', {
+          className: 'wishlist__items',
+        });
+
+        categoriesItem.append(categoriesTitle, wishlist);
+
+        for (const item of user.wish[title]) {
+          const itemElem = createElement('li', {
+            className: 'item',
+          });
+
+          const itemImg = createElement('img', {
+            src: `${API_URL}/${item.img}`,
+            alt: item.title,
+            className: "itm__image",
+          });
+
+          const itemTitle = createElement('h4', {
+            className: "item__title",
+            textContent: item.title,
+          });
+          
+          const itemPrice = createElement('p', {
+            className: "item__price",
+            textContent: `${item.price} ${item.currency}`,
+          });
+
+          itemElem.append(itemImg, itemTitle, itemPrice);
+
+          if (login === pageLogin) {
+            const itemBtn = createElement('button', {
+              className: "item__btn btn btn_castling",
+              textContent: 'Выбрать',
+            });
+
+            itemElem.append(itemBtn);
+
+            itemBtn.addEventListener('click', (e) => {
+              router.setRoute(`/editwish/${item.id}`);
+            });
+          };
+
+          wishlist.append(itemElem);
+        };
+        categoriesList.append(categoriesItem);
+      };
+    };
+  };
+  
+  return section;
 };

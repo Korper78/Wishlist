@@ -5,7 +5,7 @@ export const createElement = (tagName, attribute) => {
 };
 
 export const pluralizeYears = (age) => {
-  let years = year % 100;
+  let years = age % 100;
   if (years >= 11 && years <= 19) {
     return 'лет'
   } else {
